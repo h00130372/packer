@@ -19,6 +19,7 @@ type StepRegisterAMI struct {
 	EnableAMIENASupport      *bool
 	EnableAMISriovNetSupport bool
 	image                    *ec2.Image
+	LaunchOmitMap            map[string]bool
 }
 
 func (s *StepRegisterAMI) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -125,6 +126,11 @@ func (s *StepRegisterAMI) combineDevices(snapshotIds map[string]string) []*ec2.B
 	// the same name in ami_block_device_mappings, except for the
 	// one designated as the root device in ami_root_device
 	for _, device := range s.LaunchDevices {
+		// Skip devices we've flagged for omission
+		omit, ok := s.LaunchOmitMap[*device.DeviceName]
+		if ok && omit {
+			continue
+		}
 		snapshotId, ok := snapshotIds[*device.DeviceName]
 		if ok {
 			device.Ebs.SnapshotId = aws.String(snapshotId)
