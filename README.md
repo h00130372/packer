@@ -1,4 +1,4 @@
-# Packer
+#### Packer
 
 [![Build Status][travis-badge]][travis]
 [![Windows Build Status][appveyor-badge]][appveyor]
